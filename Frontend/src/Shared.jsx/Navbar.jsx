@@ -3,6 +3,8 @@ import { IoCartOutline } from "react-icons/io5";
 import { GiHamburgerMenu } from "react-icons/gi";
 
 function NavBar() {
+
+    // feature btn 
     const links = (
         <>
             <li>
