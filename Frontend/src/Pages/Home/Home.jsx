@@ -5,6 +5,7 @@ function Home() {
   useEffect(() => {
     document.title = 'Zoom-Shop | Home';
   }, []);
+  
   return (
     <div>
       <div className="w-full">
