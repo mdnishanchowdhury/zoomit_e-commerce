@@ -1,0 +1,47 @@
+[
+  {
+    "_id": "p1",
+    "name": "Wireless Headphones",
+    "slug": "wireless-headphones",
+    "description": "High-quality wireless headphones with noise cancellation.",
+    "photos": [
+      "https://i.ibb.co/6PzM7fD/headphone.jpg"
+    ],
+    "price": 120,
+    "discount": 10,
+    "stock": 15,
+    "inStock": true,
+    "status": "active",
+    "categories": ["Electronics", "Audio"]
+  },
+  {
+    "_id": "p2",
+    "name": "Smartphone",
+    "slug": "smartphone",
+    "description": "Latest Android smartphone with 128GB storage and AMOLED display.",
+    "photos": [
+      "https://i.ibb.co/BZb6QFp/smartphone.jpg"
+    ],
+    "price": 600,
+    "discount": 0,
+    "stock": 0,
+    "inStock": false,
+    "status": "active",
+    "categories": ["Electronics", "Mobile"]
+  },
+  {
+    "_id": "p3",
+    "name": "Office Chair",
+    "slug": "office-chair",
+    "description": "Ergonomic office chair with adjustable height and lumbar support.",
+    "photos": [
+      "https://i.ibb.co/yVwX6gR/chair.jpg"
+    ],
+    "price": 250,
+    "discount": 20,
+    "stock": 8,
+    "inStock": true,
+    "status": "active",
+    "categories": ["Furniture"]
+  }
+]

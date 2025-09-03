@@ -1,10 +1,24 @@
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { IoCartOutline } from "react-icons/io5";
 import { GiHamburgerMenu } from "react-icons/gi";
+import { useContext } from "react";
+import { AuthContext } from "../Providers/AuthProvider";
 
 function NavBar() {
+    const { user, userLogOut } = useContext(AuthContext);
+    const navigate = useNavigate();
 
-    // feature btn 
+    const handleLogout = async () => {
+        try {
+            await userLogOut();
+            alert("successfuly logout");
+            navigate("/login");
+        } catch (err) {
+            alert(err.response?.data?.message || "Logout failed");
+        }
+    };
+
+    // btn 
     const links = (
         <>
             <li>
@@ -61,18 +75,26 @@ function NavBar() {
                     </Link>
 
                     {/*Buttons */}
-                    <Link
-                        to="/login"
-                        className="btn btn-sm rounded-full bg-yellow-500 hover:bg-yellow-600 text-white shadow-md transition"
-                    >
-                        Login
-                    </Link>
-                    <Link
-                        to="/signUp"
-                        className="btn btn-sm rounded-full bg-white text-black hover:bg-gray-200 shadow-md transition"
-                    >
-                        Sign Up
-                    </Link>
+                    {
+                        !user ? <>
+                            <Link
+                                to="/login"
+                                className="btn btn-sm rounded-full bg-yellow-500 hover:bg-yellow-600 text-white shadow-md transition"
+                            >
+                                Login
+                            </Link>
+                            <Link
+                                to="/signUp"
+                                className="btn btn-sm rounded-full bg-white text-black hover:bg-gray-200 shadow-md transition"
+                            >
+                                Sign Up
+                            </Link>
+                        </>
+                            :
+                            <>
+                                <button onClick={handleLogout} className="btn btn-error">Logout</button>
+                            </>
+                    }
                 </div>
             </div>
         </div>
