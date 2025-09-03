@@ -8,7 +8,7 @@ import Swal from "sweetalert2";
 function SignUp() {
     const [showPassword, setShowPassword] = useState(false);
     const { register, handleSubmit, formState: { errors } } = useForm();
-    const { createUser } = useContext(AuthContext);
+    const { createUser, loading } = useContext(AuthContext);
     const navigate = useNavigate();
 
     // submit function
@@ -102,10 +102,16 @@ function SignUp() {
 
                     {/* Submit */}
                     <div className="form-control mt-4">
-                        <input className="btn btn-neutral bg-[#D1A054] w-full" type="submit" value="Sign Up" />
+                        <input
+                            className="btn btn-neutral bg-[#D1A054] w-full"
+                            type="submit"
+                            value={loading ? "Signing Up..." : "Sign Up"}
+                            disabled={loading}
+                        />
                     </div>
+
                 </form>
-                {/* location */}
+                {/* Go to Login */}
                 <p className="text-center mt-6 text-[#D1A054] font-semibold">
                     <span className="font-normal">Already registered? </span>
                     <Link to="/login" className="underline">Go to Login</Link>
