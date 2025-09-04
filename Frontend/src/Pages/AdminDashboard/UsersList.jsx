@@ -1,11 +1,11 @@
+import { useGetUsersQuery } from "../../redux/features/products/productSlice";
+
 export default function UsersList() {
-  // ডেমো ইউজার ডেটা
-  const users = [
-    { id: 1, name: "Nishan", email: "nishan@example.com", role: "Admin", status: "Active" },
-    { id: 2, name: "Hasan", email: "hasan@example.com", role: "User", status: "Active" },
-    { id: 3, name: "Rafi", email: "rafi@example.com", role: "User", status: "Inactive" },
-    { id: 4, name: "Sadia", email: "sadia@example.com", role: "Admin", status: "Active" },
-  ];
+  // RTK Query hook ব্যবহার করে API থেকে ইউজার ডেটা আনা
+  const { data: users = [], isLoading, isError } = useGetUsersQuery();
+
+  if (isLoading) return <p className="p-6 text-gray-500">Loading users...</p>;
+  if (isError) return <p className="p-6 text-red-500">Failed to load users.</p>;
 
   return (
     <div className="p-6 space-y-6">
@@ -24,9 +24,9 @@ export default function UsersList() {
             </tr>
           </thead>
           <tbody>
-            {users.map((user) => (
-              <tr key={user.id} className="hover:bg-gray-50">
-                <td className="p-2 border">{user.id}</td>
+            {users.map((user, idx) => (
+              <tr key={user.id || idx} className="hover:bg-gray-50">
+                <td className="p-2 border">{idx + 1}</td>
                 <td className="p-2 border">{user.name}</td>
                 <td className="p-2 border">{user.email}</td>
                 <td className="p-2 border">{user.role}</td>

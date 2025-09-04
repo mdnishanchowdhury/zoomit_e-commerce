@@ -1,231 +1,261 @@
-// import { useState } from "react";
+import { useState } from "react";
+import { useAddProductMutation, useGetProductsQuery } from "../../redux/features/products/productSlice";
 
-// export default function ProductsPage() {
-//   const [showForm, setShowForm] = useState(false);
-//   const [products, setProducts] = useState([]);
+export default function ProductsPage() {
+  const [showForm, setShowForm] = useState(false);
 
-//   const [newProduct, setNewProduct] = useState({
-//     name: "",
-//     slug: "",
-//     description: "",
-//     price: "",
-//     discount: "",
-//     stock: true,
-//     status: "active",
-//     category: "",
-//   });
+  // RTK Query hooks
+  const { data: products = [], refetch, isLoading } = useGetProductsQuery();
+  const [addProduct] = useAddProductMutation();
 
-//   // Handle input
-//   const handleChange = (e) => {
-//     const { name, value, type, checked } = e.target;
-//     setNewProduct({
-//       ...newProduct,
-//       [name]: type === "checkbox" ? checked : value,
-//     });
-//   };
+  const [newProduct, setNewProduct] = useState({
+    name: "",
+    slug: "",
+    description: "",
+    price: "",
+    discount: 0,
+    stock: 15, // default quantity
+    status: "active",
+    photos: [], // optional
+    categories: [],
+  });
 
-//   // Handle submit
-//   const handleSubmit = (e) => {
-//     e.preventDefault();
+  // Handle input changes
+  const handleChange = (e) => {
+    const { name, value, type } = e.target;
 
-//     // ডেমো আইডি জেনারেট করা হচ্ছে
-//     const id = products.length + 1;
-//     const productData = { id, ...newProduct };
+    if (name === "categories") {
+      setNewProduct({ ...newProduct, categories: value.split(",").map(cat => cat.trim()) });
+    } else if (type === "number") {
+      setNewProduct({ ...newProduct, [name]: Number(value) });
+    } else {
+      setNewProduct({ ...newProduct, [name]: value });
+    }
+  };
 
-//     // নতুন প্রোডাক্ট লিস্টে যোগ করো
-//     setProducts([...products, productData]);
+  // Handle form submit
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await addProduct(newProduct).unwrap(); // send data to backend
+      setNewProduct({
+        name: "",
+        slug: "",
+        description: "",
+        price: "",
+        discount: 0,
+        stock: 15, // reset default
+        status: "active",
+        photos: [],
+        categories: [],
+      });
+      setShowForm(false);
+      refetch(); // refresh product list
+    } catch (err) {
+      console.error("Failed to add product:", err);
+    }
+  };
 
-//     // ফর্ম ক্লিয়ার
-//     setNewProduct({
-//       name: "",
-//       slug: "",
-//       description: "",
-//       price: "",
-//       discount: "",
-//       stock: true,
-//       status: "active",
-//       category: "",
-//     });
+  return (
+    <div className="p-6 space-y-6">
+      {/* Header */}
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold">Products Management</h1>
+        <button
+          onClick={() => setShowForm(!showForm)}
+          className="px-4 py-2 bg-blue-600 text-white rounded"
+        >
+          {showForm ? "Close Form" : "Add Product"}
+        </button>
+      </div>
 
-//     setShowForm(false);
-//   };
+      {/* Add Product Form */}
+      {showForm && (
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white shadow-md rounded-xl p-6 space-y-4"
+        >
+          <div>
+            <label className="block font-medium">Product Name</label>
+            <input
+              type="text"
+              name="name"
+              value={newProduct.name}
+              onChange={handleChange}
+              className="w-full border rounded p-2"
+              required
+            />
+          </div>
 
-//   return (
-//     <div className="p-6 space-y-6">
-//       {/* Header */}
-//       <div className="flex justify-between items-center">
-//         <h1 className="text-2xl font-bold">Products Management</h1>
-//         <button
-//           onClick={() => setShowForm(!showForm)}
-//           className="px-4 py-2 bg-blue-600 text-white rounded"
-//         >
-//           {showForm ? "Close Form" : "Add Product"}
-//         </button>
-//       </div>
+          <div>
+            <label className="block font-medium">Slug</label>
+            <input
+              type="text"
+              name="slug"
+              value={newProduct.slug}
+              onChange={handleChange}
+              className="w-full border rounded p-2"
+              required
+            />
+          </div>
 
-//       {/* Add Product Form */}
-//       {showForm && (
-//         <form
-//           onSubmit={handleSubmit}
-//           className="bg-white shadow-md rounded-xl p-6 space-y-4"
-//         >
-//           <div>
-//             <label className="block font-medium">Product Name</label>
-//             <input
-//               type="text"
-//               name="name"
-//               value={newProduct.name}
-//               onChange={handleChange}
-//               className="w-full border rounded p-2"
-//               required
-//             />
-//           </div>
+          <div>
+            <label className="block font-medium">Description</label>
+            <textarea
+              name="description"
+              value={newProduct.description}
+              onChange={handleChange}
+              className="w-full border rounded p-2"
+              rows="3"
+              required
+            />
+          </div>
 
-//           <div>
-//             <label className="block font-medium">Slug</label>
-//             <input
-//               type="text"
-//               name="slug"
-//               value={newProduct.slug}
-//               onChange={handleChange}
-//               className="w-full border rounded p-2"
-//               required
-//             />
-//           </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block font-medium">Price</label>
+              <input
+                type="number"
+                name="price"
+                value={newProduct.price}
+                onChange={handleChange}
+                className="w-full border rounded p-2"
+                required
+              />
+            </div>
+            <div>
+              <label className="block font-medium">Discount (%)</label>
+              <input
+                type="number"
+                name="discount"
+                value={newProduct.discount}
+                onChange={handleChange}
+                className="w-full border rounded p-2"
+              />
+            </div>
+          </div>
 
-//           <div>
-//             <label className="block font-medium">Description</label>
-//             <textarea
-//               name="description"
-//               value={newProduct.description}
-//               onChange={handleChange}
-//               className="w-full border rounded p-2"
-//               rows="3"
-//               required
-//             ></textarea>
-//           </div>
+          {/* Optional Image Upload */}
+          <div>
+            <label className="block font-medium">Product Photo (optional)</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files[0];
+                if (file) {
+                  const reader = new FileReader();
+                  reader.onloadend = () => {
+                    setNewProduct({ ...newProduct, photos: [reader.result] });
+                  };
+                  reader.readAsDataURL(file);
+                }
+              }}
+              className="w-full border rounded p-2"
+            />
+            {newProduct.photos[0] && (
+              <img
+                src={newProduct.photos[0]}
+                alt="preview"
+                className="mt-2 w-32 h-32 object-cover rounded"
+              />
+            )}
+          </div>
 
-//           <div className="grid grid-cols-2 gap-4">
-//             <div>
-//               <label className="block font-medium">Price</label>
-//               <input
-//                 type="number"
-//                 name="price"
-//                 value={newProduct.price}
-//                 onChange={handleChange}
-//                 className="w-full border rounded p-2"
-//                 required
-//               />
-//             </div>
-//             <div>
-//               <label className="block font-medium">Discount (%)</label>
-//               <input
-//                 type="number"
-//                 name="discount"
-//                 value={newProduct.discount}
-//                 onChange={handleChange}
-//                 className="w-full border rounded p-2"
-//               />
-//             </div>
-//           </div>
+          <div>
+            <label className="block font-medium">Categories (comma separated)</label>
+            <input
+              type="text"
+              name="categories"
+              value={newProduct.categories.join(", ")}
+              onChange={handleChange}
+              className="w-full border rounded p-2"
+            />
+          </div>
 
-//           <div>
-//             <label className="block font-medium">Category</label>
-//             <input
-//               type="text"
-//               name="category"
-//               value={newProduct.category}
-//               onChange={handleChange}
-//               className="w-full border rounded p-2"
-//               required
-//             />
-//           </div>
+          {/* Stock Quantity and Status */}
+          <div className="flex gap-4 items-center">
+            <div>
+              <label className="block font-medium">Stock Quantity</label>
+              <input
+                type="number"
+                name="stock"
+                value={newProduct.stock}
+                onChange={handleChange}
+                className="w-24 border rounded p-2"
+                min="0"
+              />
+            </div>
 
-//           <div className="flex gap-4">
-//             <label className="flex items-center gap-2">
-//               <input
-//                 type="checkbox"
-//                 name="stock"
-//                 checked={newProduct.stock}
-//                 onChange={handleChange}
-//               />
-//               In Stock
-//             </label>
+            <div>
+              <label className="block font-medium">Status</label>
+              <select
+                name="status"
+                value={newProduct.status}
+                onChange={handleChange}
+                className="border rounded p-2"
+              >
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </div>
+          </div>
 
-//             <select
-//               name="status"
-//               value={newProduct.status}
-//               onChange={handleChange}
-//               className="border rounded p-2"
-//             >
-//               <option value="active">Active</option>
-//               <option value="inactive">Inactive</option>
-//             </select>
-//           </div>
+          <button
+            type="submit"
+            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+          >
+            Save Product
+          </button>
+        </form>
+      )}
 
-//           <button
-//             type="submit"
-//             className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-//           >
-//             Save Product
-//           </button>
-//         </form>
-//       )}
-
-//       {/* Products List */}
-//       <div className="bg-white shadow-md rounded-xl p-4">
-//         <h2 className="text-lg font-semibold mb-4">All Products</h2>
-//         {products.length === 0 ? (
-//           <p className="text-gray-500">No products added yet.</p>
-//         ) : (
-//           <table className="w-full text-left border">
-//             <thead>
-//               <tr className="bg-gray-100">
-//                 <th className="p-2 border">ID</th>
-//                 <th className="p-2 border">Name</th>
-//                 <th className="p-2 border">Price</th>
-//                 <th className="p-2 border">Discount</th>
-//                 <th className="p-2 border">Category</th>
-//                 <th className="p-2 border">Stock</th>
-//                 <th className="p-2 border">Status</th>
-//               </tr>
-//             </thead>
-//             <tbody>
-//               {products.map((prod) => (
-//                 <tr key={prod.id} className="hover:bg-gray-50">
-//                   <td className="p-2 border">{prod.id}</td>
-//                   <td className="p-2 border">{prod.name}</td>
-//                   <td className="p-2 border">${prod.price}</td>
-//                   <td className="p-2 border">{prod.discount}%</td>
-//                   <td className="p-2 border">{prod.category}</td>
-//                   <td className="p-2 border">
-//                     {prod.stock ? (
-//                       <span className="px-2 py-1 text-sm bg-green-100 text-green-700 rounded">
-//                         In Stock
-//                       </span>
-//                     ) : (
-//                       <span className="px-2 py-1 text-sm bg-red-100 text-red-700 rounded">
-//                         Out of Stock
-//                       </span>
-//                     )}
-//                   </td>
-//                   <td className="p-2 border">
-//                     {prod.status === "active" ? (
-//                       <span className="px-2 py-1 text-sm bg-blue-100 text-blue-700 rounded">
-//                         Active
-//                       </span>
-//                     ) : (
-//                       <span className="px-2 py-1 text-sm bg-gray-200 text-gray-700 rounded">
-//                         Inactive
-//                       </span>
-//                     )}
-//                   </td>
-//                 </tr>
-//               ))}
-//             </tbody>
-//           </table>
-//         )}
-//       </div>
-//     </div>
-//   );
-// }
+      {/* Products List */}
+      <div className="bg-white shadow-md rounded-xl p-4">
+        <h2 className="text-lg font-semibold mb-4">All Products</h2>
+        {isLoading ? (
+          <p className="text-gray-500">Loading products...</p>
+        ) : products.length === 0 ? (
+          <p className="text-gray-500">No products available.</p>
+        ) : (
+          <table className="w-full text-left border">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="p-2 border">ID</th>
+                <th className="p-2 border">Name</th>
+                <th className="p-2 border">Price</th>
+                <th className="p-2 border">Discount</th>
+                <th className="p-2 border">Categories</th>
+                <th className="p-2 border">Stock</th>
+                <th className="p-2 border">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {products.map((prod, idx) => (
+                <tr key={prod._id || idx} className="hover:bg-gray-50">
+                  <td className="p-2 border">{idx + 1}</td>
+                  <td className="p-2 border">{prod.name}</td>
+                  <td className="p-2 border">${prod.price}</td>
+                  <td className="p-2 border">{prod.discount}%</td>
+                  <td className="p-2 border">{prod.categories?.join(", ") || ""}</td>
+                  <td className="p-2 border">{prod.stock}</td>
+                  <td className="p-2 border">
+                    {prod.status === "active" ? (
+                      <span className="px-2 py-1 text-sm bg-blue-100 text-blue-700 rounded">
+                        Active
+                      </span>
+                    ) : (
+                      <span className="px-2 py-1 text-sm bg-gray-200 text-gray-700 rounded">
+                        Inactive
+                      </span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  );
+}
