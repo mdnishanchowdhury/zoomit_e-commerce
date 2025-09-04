@@ -14,4 +14,5 @@ function ProductImage({ photos, discount, name }) {
     </div>
   );
 }
+
 export default ProductImage;

@@ -59,7 +59,7 @@ function NavBar() {
                 <NavLink to="/products" className="hover:text-yellow-400">Products</NavLink>
             </li>
             <li>
-                <NavLink to="/orders" className="hover:text-yellow-400">My Orders</NavLink>
+                <NavLink to="/myorders" className="hover:text-yellow-400">My Orders</NavLink>
             </li>
             <li>
                 <NavLink to="/dashboard" className="hover:text-yellow-400">Admin Dashboard</NavLink>

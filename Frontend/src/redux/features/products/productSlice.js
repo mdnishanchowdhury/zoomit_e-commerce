@@ -4,29 +4,31 @@ import axios from "axios";
 
 // Axios instance
 const instance = axios.create({
-  baseURL: "http://localhost:5000", // আপনার backend URL
+  baseURL: "http://localhost:5000",
 });
 
-// Axios baseQuery
-const axiosBaseQuery = async ({ url, method, data }) => {
-  try {
-    const result = await instance({ url, method, data });
-    return { data: result.data };
-  } catch (error) {
-    return {
-      error: {
-        status: error.response?.status,
-        data: error.response?.data || error.message,
-      },
-    };
-  }
-};
+// Axios baseQuery for RTK Query
+const axiosBaseQuery =
+  ({ baseUrl } = { baseUrl: "" }) =>
+  async ({ url, method, data, params, headers }) => {
+    try {
+      const result = await instance({ url: baseUrl + url, method, data, params, headers });
+      return { data: result.data };
+    } catch (error) {
+      return {
+        error: {
+          status: error.response?.status,
+          data: error.response?.data || error.message,
+        },
+      };
+    }
+  };
 
 // RTK Query Slice
 export const productSlice = createApi({
   reducerPath: "api",
-  baseQuery: axiosBaseQuery,
-  tagTypes: ["Products", "Users", "Cart"],
+  baseQuery: axiosBaseQuery(),
+  tagTypes: ["Products", "Users", "Cart", "Orders"],
   endpoints: (builder) => ({
     // Users
     getUsers: builder.query({
@@ -38,23 +40,21 @@ export const productSlice = createApi({
     getProducts: builder.query({
       query: () => ({ url: "/products", method: "GET" }),
       providesTags: ["Products"],
+      pollingInterval: 10000, // auto-refresh every 10s
     }),
     addProduct: builder.mutation({
-      query: (product) => ({
+      query: (productData) => ({
         url: "/products",
         method: "POST",
-        data: product,
+        data: productData, // JSON data
+        headers: { "Content-Type": "application/json" }, // sending JSON instead of multipart
       }),
-      invalidatesTags: ["Products"],
+      invalidatesTags: ["Products"], // auto-refresh getProducts
     }),
 
     // Cart
     addToCart: builder.mutation({
-      query: (cartItem) => ({
-        url: "/carts",
-        method: "POST",
-        data: cartItem,
-      }),
+      query: (cartItem) => ({ url: "/carts", method: "POST", data: cartItem }),
       invalidatesTags: [{ type: "Cart", id: "LIST" }],
     }),
     getCart: builder.query({
@@ -66,6 +66,7 @@ export const productSlice = createApi({
               { type: "Cart", id: "LIST" },
             ]
           : [{ type: "Cart", id: "LIST" }],
+      pollingInterval: 5000, // auto-refresh cart every 5s
     }),
     updateCart: builder.mutation({
       query: ({ id, data }) => ({ url: `/carts/${id}`, method: "PUT", data }),
@@ -81,6 +82,27 @@ export const productSlice = createApi({
         { type: "Cart", id: "LIST" },
       ],
     }),
+
+    // Orders
+    placeOrder: builder.mutation({
+      query: ({ email, items, total }) => ({
+        url: "/orders",
+        method: "POST",
+        data: { email, items, total },
+      }),
+      invalidatesTags: ["Cart", "Orders"], // auto-refresh cart and orders
+    }),
+    getOrders: builder.query({
+      query: (email) => ({ url: `/orders?email=${email}`, method: "GET" }),
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.map((order) => ({ type: "Orders", id: order._id })),
+              { type: "Orders", id: "LIST" },
+            ]
+          : [{ type: "Orders", id: "LIST" }],
+      pollingInterval: 5000, // auto-refresh orders every 5s
+    }),
   }),
 });
 
@@ -93,4 +115,6 @@ export const {
   useGetCartQuery,
   useUpdateCartMutation,
   useDeleteCartMutation,
+  usePlaceOrderMutation,
+  useGetOrdersQuery,
 } = productSlice;

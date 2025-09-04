@@ -1,15 +1,18 @@
 import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
-// import useCart from "../../Hook/useCart";
+import Swal from "sweetalert2";
+import { usePlaceOrderMutation } from "../../redux/features/products/productSlice";
+import useAuth from "../../Hook/useAuth"; // your auth hook
 
 function ProductDetails() {
   const location = useLocation();
   const cartItem = location.state?.cartItem;
-
-  // const [cartData, refetch] = useCart();
+  const { user } = useAuth(); // logged-in user
   const [cart, setCart] = useState(
     cartItem ? [{ ...cartItem, quantity: cartItem.quantity || 1 }] : []
   );
+
+  const [placeOrder] = usePlaceOrderMutation();
 
   const updateQuantity = (id, type) => {
     setCart((prev) =>
@@ -39,6 +42,37 @@ function ProductDetails() {
   const shipping = subtotal > 0 ? 100 : 0;
   const total = subtotal + shipping;
 
+  const handleCheckout = async () => {
+    if (!user?.email)
+      return Swal.fire(
+        "Not Logged In",
+        "You must be logged in to place an order",
+        "warning"
+      );
+
+    if (cart.length === 0)
+      return Swal.fire(
+        "Cart Empty",
+        "Please add items to your cart.",
+        "warning"
+      );
+
+    const items = cart.map((item) => ({
+      productId: item._id,
+      name: item.name,
+      price: item.price - (item.price * item.discount) / 100,
+      quantity: item.quantity,
+    }));
+
+    try {
+      await placeOrder({ email: user.email, items, total }).unwrap();
+      Swal.fire("Success", "Order placed successfully!", "success");
+      setCart([]); // empty cart after successful order
+    } catch (err) {
+      Swal.fire("Error", err?.data?.message || "Failed to place order", "error");
+    }
+  };
+
   return (
     <div className="max-w-5xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-6">Shopping Cart</h1>
@@ -64,8 +98,7 @@ function ProductDetails() {
                     <p className="text-sm text-gray-500">
                       ৳
                       {(
-                        item.price -
-                        (item.price * item.discount) / 100
+                        item.price - (item.price * item.discount) / 100
                       ).toFixed(2)}
                       {item.discount > 0 && (
                         <span className="line-through text-gray-400 ml-2">
@@ -74,9 +107,8 @@ function ProductDetails() {
                       )}
                     </p>
                     <p
-                      className={`text-xs mt-1 ${
-                        item.stock > 0 ? "text-green-600" : "text-red-600"
-                      }`}
+                      className={`text-xs mt-1 ${item.stock > 0 ? "text-green-600" : "text-red-600"
+                        }`}
                     >
                       {item.stock > 0 ? "In Stock" : "Stock Out"}
                     </p>
@@ -126,7 +158,7 @@ function ProductDetails() {
             </p>
 
             <button
-              onClick={() => alert("➡️ Proceed to Checkout")}
+              onClick={handleCheckout}
               className="mt-4 w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg"
             >
               Proceed to Checkout

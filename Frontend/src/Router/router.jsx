@@ -11,6 +11,7 @@ import AdminOverview from "../Pages/AdminDashboard/AdminOverview";
 import UsersList from "../Pages/AdminDashboard/UsersList";
 import AddProductForm from "../Pages/AdminDashboard/AddProductForm";
 import OrdersList from "../Pages/AdminDashboard/OrdersList";
+import MyOrders from "../Pages/MyOrders/MyOrders";
 
 export const router = createBrowserRouter([
     {
@@ -36,6 +37,10 @@ export const router = createBrowserRouter([
             {
                 path: "details",
                 element: <ProductDetails></ProductDetails>
+            },
+            {
+                path: "myorders",
+                element: <MyOrders></MyOrders>
             },
             {
                 path: "*",

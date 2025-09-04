@@ -4,7 +4,6 @@ import { useAddProductMutation, useGetProductsQuery } from "../../redux/features
 export default function ProductsPage() {
   const [showForm, setShowForm] = useState(false);
 
-  // RTK Query hooks
   const { data: products = [], refetch, isLoading } = useGetProductsQuery();
   const [addProduct] = useAddProductMutation();
 
@@ -14,43 +13,58 @@ export default function ProductsPage() {
     description: "",
     price: "",
     discount: 0,
-    stock: 15, // default quantity
+    stock: 0, // Numeric stock quantity
     status: "active",
-    photos: [], // optional
+    photos: [], // Multiple photos
     categories: [],
   });
 
-  // Handle input changes
+  // Input change handler
   const handleChange = (e) => {
-    const { name, value, type } = e.target;
+    const { name, value } = e.target;
 
     if (name === "categories") {
       setNewProduct({ ...newProduct, categories: value.split(",").map(cat => cat.trim()) });
-    } else if (type === "number") {
-      setNewProduct({ ...newProduct, [name]: Number(value) });
+    } else if (name === "stock") {
+      setNewProduct({ ...newProduct, stock: Number(value) });
     } else {
       setNewProduct({ ...newProduct, [name]: value });
     }
   };
 
-  // Handle form submit
+  // File upload handler (multiple images)
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files);
+    const readers = files.map(file => new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    }));
+
+    Promise.all(readers)
+      .then(images => setNewProduct({ ...newProduct, photos: images }))
+      .catch(err => console.error("Error reading files", err));
+  };
+
+  // Form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await addProduct(newProduct).unwrap(); // send data to backend
+      await addProduct(newProduct).unwrap();
       setNewProduct({
         name: "",
         slug: "",
         description: "",
         price: "",
         discount: 0,
-        stock: 15, // reset default
+        stock: 0,
         status: "active",
         photos: [],
         categories: [],
       });
       setShowForm(false);
-      refetch(); // refresh product list
+      refetch();
     } catch (err) {
       console.error("Failed to add product:", err);
     }
@@ -71,10 +85,7 @@ export default function ProductsPage() {
 
       {/* Add Product Form */}
       {showForm && (
-        <form
-          onSubmit={handleSubmit}
-          className="bg-white shadow-md rounded-xl p-6 space-y-4"
-        >
+        <form onSubmit={handleSubmit} className="bg-white shadow-md rounded-xl p-6 space-y-4">
           <div>
             <label className="block font-medium">Product Name</label>
             <input
@@ -135,30 +146,27 @@ export default function ProductsPage() {
             </div>
           </div>
 
-          {/* Optional Image Upload */}
+          {/* Multiple Image Upload */}
           <div>
-            <label className="block font-medium">Product Photo (optional)</label>
+            <label className="block font-medium">Product Photos (optional)</label>
             <input
               type="file"
               accept="image/*"
-              onChange={(e) => {
-                const file = e.target.files[0];
-                if (file) {
-                  const reader = new FileReader();
-                  reader.onloadend = () => {
-                    setNewProduct({ ...newProduct, photos: [reader.result] });
-                  };
-                  reader.readAsDataURL(file);
-                }
-              }}
+              multiple
+              onChange={handleFileChange}
               className="w-full border rounded p-2"
             />
-            {newProduct.photos[0] && (
-              <img
-                src={newProduct.photos[0]}
-                alt="preview"
-                className="mt-2 w-32 h-32 object-cover rounded"
-              />
+            {newProduct.photos.length > 0 && (
+              <div className="flex gap-2 mt-2 flex-wrap">
+                {newProduct.photos.map((photo, idx) => (
+                  <img
+                    key={idx}
+                    src={photo}
+                    alt={`preview-${idx}`}
+                    className="w-24 h-24 object-cover rounded"
+                  />
+                ))}
+              </div>
             )}
           </div>
 
@@ -173,7 +181,6 @@ export default function ProductsPage() {
             />
           </div>
 
-          {/* Stock Quantity and Status */}
           <div className="flex gap-4 items-center">
             <div>
               <label className="block font-medium">Stock Quantity</label>
@@ -184,6 +191,7 @@ export default function ProductsPage() {
                 onChange={handleChange}
                 className="w-24 border rounded p-2"
                 min="0"
+                required
               />
             </div>
 
@@ -227,6 +235,7 @@ export default function ProductsPage() {
                 <th className="p-2 border">Discount</th>
                 <th className="p-2 border">Categories</th>
                 <th className="p-2 border">Stock</th>
+                <th className="p-2 border">Photos</th>
                 <th className="p-2 border">Status</th>
               </tr>
             </thead>
@@ -238,7 +247,31 @@ export default function ProductsPage() {
                   <td className="p-2 border">${prod.price}</td>
                   <td className="p-2 border">{prod.discount}%</td>
                   <td className="p-2 border">{prod.categories?.join(", ") || ""}</td>
-                  <td className="p-2 border">{prod.stock}</td>
+                  <td className="p-2 border">
+                    {prod.stock > 0 ? (
+                      <span className="px-2 py-1 text-sm bg-green-100 text-green-700 rounded">
+                        {prod.stock} In Stock
+                      </span>
+                    ) : (
+                      <span className="px-2 py-1 text-sm bg-red-100 text-red-700 rounded">
+                        Out of Stock
+                      </span>
+                    )}
+                  </td>
+                  <td className="p-2 border flex gap-1">
+                    {prod.photos?.length > 0 ? (
+                      prod.photos.map((photo, i) => (
+                        <img
+                          key={i}
+                          src={photo}
+                          alt={`product-${i}`}
+                          className="w-12 h-12 object-cover rounded"
+                        />
+                      ))
+                    ) : (
+                      <span className="text-gray-400">No Photo</span>
+                    )}
+                  </td>
                   <td className="p-2 border">
                     {prod.status === "active" ? (
                       <span className="px-2 py-1 text-sm bg-blue-100 text-blue-700 rounded">
