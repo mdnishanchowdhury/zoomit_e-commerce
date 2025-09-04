@@ -9,43 +9,43 @@ import CartButton from "../Componets/Navbar/CartButton";
 function NavBar() {
     const { user, userLogOut } = useContext(AuthContext);
     const navigate = useNavigate();
-// const [cart, refetch] = useCart();
+    // const [cart, refetch] = useCart();
 
-const handleLogout = async () => {
-  const result = await Swal.fire({
-    title: "Are you sure?",
-    text: "You will be logged out from your account!",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#3085d6",
-    cancelButtonColor: "#d33",
-    confirmButtonText: "Yes, logout!",
-    cancelButtonText: "Cancel"
-  });
+    const handleLogout = async () => {
+        const result = await Swal.fire({
+            title: "Are you sure?",
+            text: "You will be logged out from your account!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, logout!",
+            cancelButtonText: "Cancel"
+        });
 
-  if (result.isConfirmed) {
-    try {
-      await userLogOut();
-    //   await refetch(); // cart refresh
+        if (result.isConfirmed) {
+            try {
+                await userLogOut();
+                //   await refetch(); // cart refresh
 
-      Swal.fire({
-        title: "Logged Out!",
-        text: "You have been successfully logged out.",
-        icon: "success",
-        timer: 1500,
-        showConfirmButton: false
-      });
+                Swal.fire({
+                    title: "Logged Out!",
+                    text: "You have been successfully logged out.",
+                    icon: "success",
+                    timer: 1500,
+                    showConfirmButton: false
+                });
 
-      navigate("/login", { replace: true });
-    } catch (err) {
-      Swal.fire({
-        icon: "error",
-        title: "Logout failed",
-        text: err.response?.data?.message || "Something went wrong!"
-      });
-    }
-  }
-};
+                navigate("/login", { replace: true });
+            } catch (err) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Logout failed",
+                    text: err.response?.data?.message || "Something went wrong!"
+                });
+            }
+        }
+    };
 
 
 
@@ -60,6 +60,9 @@ const handleLogout = async () => {
             </li>
             <li>
                 <NavLink to="/orders" className="hover:text-yellow-400">My Orders</NavLink>
+            </li>
+            <li>
+                <NavLink to="/dashboard" className="hover:text-yellow-400">Admin Dashboard</NavLink>
             </li>
         </>
     );
@@ -104,7 +107,7 @@ const handleLogout = async () => {
                             </div>
                         </button>
                     </Link> */}
-{/* cart={cart} */}
+                    {/* cart={cart} */}
                     <CartButton ></CartButton>
 
                     {/*Buttons */}
