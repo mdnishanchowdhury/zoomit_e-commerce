@@ -1,16 +1,20 @@
 import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
+// import useCart from "../../Hook/useCart";
 
 function ProductDetails() {
   const location = useLocation();
   const cartItem = location.state?.cartItem;
 
-  const [cart, setCart] = useState(cartItem ? [{ ...cartItem }] : []);
+  // const [cartData, refetch] = useCart();
+  const [cart, setCart] = useState(
+    cartItem ? [{ ...cartItem, quantity: cartItem.quantity || 1 }] : []
+  );
 
   const updateQuantity = (id, type) => {
     setCart((prev) =>
       prev.map((item) => {
-        if (item.id === id) {
+        if (item._id === id) {
           if (type === "inc" && item.quantity < item.stock) {
             return { ...item, quantity: item.quantity + 1 };
           }
@@ -24,11 +28,12 @@ function ProductDetails() {
   };
 
   const removeItem = (id) => {
-    setCart((prev) => prev.filter((item) => item.id !== id));
+    setCart((prev) => prev.filter((item) => item._id !== id));
   };
 
   const subtotal = cart.reduce(
-    (acc, item) => acc + (item.price - (item.price * item.discount) / 100) * item.quantity,
+    (acc, item) =>
+      acc + (item.price - (item.price * item.discount) / 100) * item.quantity,
     0
   );
   const shipping = subtotal > 0 ? 100 : 0;
@@ -45,7 +50,7 @@ function ProductDetails() {
           <div className="md:col-span-2 space-y-4">
             {cart.map((item) => (
               <div
-                key={item.id}
+                key={item._id}
                 className="flex items-center justify-between border p-4 rounded-xl shadow-sm"
               >
                 <div className="flex items-center gap-4">
@@ -57,9 +62,15 @@ function ProductDetails() {
                   <div>
                     <h2 className="font-semibold">{item.name}</h2>
                     <p className="text-sm text-gray-500">
-                      ৳{item.price - (item.price * item.discount) / 100}{" "}
+                      ৳
+                      {(
+                        item.price -
+                        (item.price * item.discount) / 100
+                      ).toFixed(2)}
                       {item.discount > 0 && (
-                        <span className="line-through text-gray-400 ml-2">৳{item.price}</span>
+                        <span className="line-through text-gray-400 ml-2">
+                          ৳{item.price}
+                        </span>
                       )}
                     </p>
                     <p
@@ -74,14 +85,14 @@ function ProductDetails() {
 
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => updateQuantity(item.id, "dec")}
+                    onClick={() => updateQuantity(item._id, "dec")}
                     className="px-2 py-1 border rounded"
                   >
                     -
                   </button>
                   <span>{item.quantity}</span>
                   <button
-                    onClick={() => updateQuantity(item.id, "inc")}
+                    onClick={() => updateQuantity(item._id, "inc")}
                     disabled={item.quantity >= item.stock}
                     className="px-2 py-1 border rounded"
                   >
@@ -90,7 +101,7 @@ function ProductDetails() {
                 </div>
 
                 <button
-                  onClick={() => removeItem(item.id)}
+                  onClick={() => removeItem(item._id)}
                   className="text-red-500 hover:underline"
                 >
                   Remove
@@ -103,15 +114,15 @@ function ProductDetails() {
             <h2 className="text-lg font-bold mb-4">Order Summary</h2>
             <p className="flex justify-between mb-2">
               <span>Subtotal</span>
-              <span>৳{subtotal}</span>
+              <span>৳{subtotal.toFixed(2)}</span>
             </p>
             <p className="flex justify-between mb-2">
               <span>Shipping</span>
-              <span>৳{shipping}</span>
+              <span>৳{shipping.toFixed(2)}</span>
             </p>
             <p className="flex justify-between font-bold text-lg border-t pt-2">
               <span>Total</span>
-              <span>৳{total}</span>
+              <span>৳{total.toFixed(2)}</span>
             </p>
 
             <button

@@ -1,22 +1,53 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { IoCartOutline } from "react-icons/io5";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { useContext } from "react";
 import { AuthContext } from "../Providers/AuthProvider";
+import Swal from "sweetalert2";
+// import useCart from "../Hook/useCart";
+import CartButton from "../Componets/Navbar/CartButton";
 
 function NavBar() {
     const { user, userLogOut } = useContext(AuthContext);
     const navigate = useNavigate();
+// const [cart, refetch] = useCart();
 
-    const handleLogout = async () => {
-        try {
-            await userLogOut();
-            alert("successfuly logout");
-            navigate("/login");
-        } catch (err) {
-            alert(err.response?.data?.message || "Logout failed");
-        }
-    };
+const handleLogout = async () => {
+  const result = await Swal.fire({
+    title: "Are you sure?",
+    text: "You will be logged out from your account!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, logout!",
+    cancelButtonText: "Cancel"
+  });
+
+  if (result.isConfirmed) {
+    try {
+      await userLogOut();
+    //   await refetch(); // cart refresh
+
+      Swal.fire({
+        title: "Logged Out!",
+        text: "You have been successfully logged out.",
+        icon: "success",
+        timer: 1500,
+        showConfirmButton: false
+      });
+
+      navigate("/login", { replace: true });
+    } catch (err) {
+      Swal.fire({
+        icon: "error",
+        title: "Logout failed",
+        text: err.response?.data?.message || "Something went wrong!"
+      });
+    }
+  }
+};
+
+
 
     // btn 
     const links = (
@@ -36,9 +67,9 @@ function NavBar() {
     return (
         <div className="navbar fixed z-10 bg-[#15151580]  text-white shadow-sm">
 
-            <div className="w-7xl mx-auto">
+            <div className="w-7xl mx-auto items-center">
                 {/* Left Section */}
-                <div className="navbar-start ">
+                <div className="navbar-start items-center">
                     {/* Mobile Dropdown */}
                     <div className="dropdown">
                         <button tabIndex={0} className="btn btn-ghost lg:hidden">
@@ -52,7 +83,7 @@ function NavBar() {
                         </ul>
                     </div>
                     {/* Logo */}
-                    <Link to="/" className=" text-xl  font-black uppercase">
+                    <Link to="/" className=" text-[16px] md:text-xl  font-black uppercase">
                         Zoomit Shop
                     </Link>
                 </div>
@@ -64,15 +95,17 @@ function NavBar() {
                             {links}
                         </ul>
                     </div>
-                    {/* Cart */}
-                    <Link to="/dashboard/cart">
+                    {/* Cart
+                    <Link to="/cart">
                         <button className="relative flex items-center gap-2 px-4 py-2 rounded-full border border-white/20 hover:bg-white/10 transition">
                             <IoCartOutline className="w-6 h-6" />
                             <div className="badge badge-sm bg-yellow-500 text-black absolute -top-1 -right-1">
-                                10
+                                {cart.length}
                             </div>
                         </button>
-                    </Link>
+                    </Link> */}
+{/* cart={cart} */}
+                    <CartButton ></CartButton>
 
                     {/*Buttons */}
                     {

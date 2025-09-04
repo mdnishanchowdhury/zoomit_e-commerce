@@ -11,7 +11,7 @@ function Login() {
     const { register, handleSubmit, formState: { errors } } = useForm();
     const navigate = useNavigate();
 
-    // submit 
+    // submit handler
     const onSubmit = async (data) => {
         try {
             await userSignIn(data);
@@ -50,15 +50,14 @@ function Login() {
                             type="email"
                             className="input input-bordered w-full"
                             placeholder="Email"
+                            autoComplete="username" 
                         />
-                        {
-                            errors.email && (
-                                <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
-                            )
-                        }
+                        {errors.email && (
+                            <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+                        )}
                     </div>
 
-                    {/* Password with view toggle */}
+                    {/* Password with toggle */}
                     <div className="form-control relative">
                         <label className="label font-semibold">Password</label>
                         <input
@@ -66,6 +65,7 @@ function Login() {
                             type={showPassword ? "text" : "password"}
                             className="input input-bordered w-full pr-10"
                             placeholder="Password"
+                            autoComplete="current-password" 
                         />
                         <span
                             className="absolute right-3 top-[38px] cursor-pointer text-gray-600"
@@ -73,11 +73,9 @@ function Login() {
                         >
                             {showPassword ? <FaEyeSlash /> : <FaEye />}
                         </span>
-                        {
-                            errors.password && (
-                                <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
-                            )
-                        }
+                        {errors.password && (
+                            <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
+                        )}
                     </div>
 
                     {/* Submit */}
@@ -90,7 +88,8 @@ function Login() {
                         />
                     </div>
                 </form>
-                {/*Create Account*/}
+
+                {/* Create Account */}
                 <p className="text-center mt-6 text-[#D1A054] font-semibold">
                     <span className="font-normal">New here? </span>
                     <Link to="/signUp" className="underline">

@@ -16,7 +16,6 @@ function Home() {
           <div>
             <h2>{user?.email}</h2>
             <img src={user?.photo ? `http://localhost:5000/uploads/${user.photo}` : '/default-avatar.png'} alt="Profile" />
-
           </div>
         }
       </div>

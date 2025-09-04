@@ -1,19 +1,13 @@
-// src/api/auth.js
-import axios from "axios";
-
-const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
+import axiosInstance from "./axiosInstance";
 
 // Register
 export const signUpAPI = (formData) =>
-  axios.post(`${API}/signUp`, formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-    withCredentials: true,
-  });
+    axiosInstance.post("/signUp", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+    });
 
 // Login
-export const loginAPI = (data) =>
-  axios.post(`${API}/login`, data, { withCredentials: true });
+export const loginAPI = (data) => axiosInstance.post("/login", data);
 
 // Logout
-export const logoutAPI = () =>
-  axios.post(`${API}/logout`, {}, { withCredentials: true });
+export const logoutAPI = () => axiosInstance.post("/logout");
