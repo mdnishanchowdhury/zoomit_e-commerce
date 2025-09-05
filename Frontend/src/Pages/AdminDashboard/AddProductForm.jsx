@@ -13,13 +13,13 @@ export default function ProductsPage() {
     description: "",
     price: "",
     discount: 0,
-    stock: 0, // Numeric stock quantity
+    stock: 0, 
     status: "active",
-    photos: [], // Multiple photos
+    photos: [], 
     categories: [],
   });
 
-  // Input change handler
+
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -32,7 +32,7 @@ export default function ProductsPage() {
     }
   };
 
-  // File upload handler (multiple images)
+  // File upload 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
     const readers = files.map(file => new Promise((resolve, reject) => {
@@ -146,7 +146,6 @@ export default function ProductsPage() {
             </div>
           </div>
 
-          {/* Multiple Image Upload */}
           <div>
             <label className="block font-medium">Product Photos (optional)</label>
             <input

@@ -1,13 +1,13 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 import { usePlaceOrderMutation } from "../../redux/features/products/productSlice";
-import useAuth from "../../Hook/useAuth"; // your auth hook
+import useAuth from "../../Hook/useAuth";
 
 function ProductDetails() {
   const location = useLocation();
   const cartItem = location.state?.cartItem;
-  const { user } = useAuth(); // logged-in user
+  const { user } = useAuth();
   const [cart, setCart] = useState(
     cartItem ? [{ ...cartItem, quantity: cartItem.quantity || 1 }] : []
   );
@@ -67,7 +67,7 @@ function ProductDetails() {
     try {
       await placeOrder({ email: user.email, items, total }).unwrap();
       Swal.fire("Success", "Order placed successfully!", "success");
-      setCart([]); // empty cart after successful order
+      setCart([]);
     } catch (err) {
       Swal.fire("Error", err?.data?.message || "Failed to place order", "error");
     }

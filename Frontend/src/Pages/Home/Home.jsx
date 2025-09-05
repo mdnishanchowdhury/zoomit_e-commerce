@@ -4,7 +4,7 @@ import { AuthContext } from "../../Providers/AuthProvider";
 function Home() {
   const { user } = useContext(AuthContext);
 
-  console.log('User:',user)
+  // console.log('User:',user)
 
   if (!user) {
     return (
@@ -13,7 +13,6 @@ function Home() {
       </div>
     );
   }
-
   useEffect(() => {
     document.title = 'Zoom-Shop | Home';
   }, []);

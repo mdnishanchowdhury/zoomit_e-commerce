@@ -34,7 +34,7 @@ export default function AdminOrders() {
 
   const [filterDate, setFilterDate] = useState("");
 
-  // Update order status
+  // Update order
   const updateStatus = (id, newStatus) => {
     setOrders(
       orders.map((order) =>
@@ -83,13 +83,12 @@ export default function AdminOrders() {
                 <td className="p-2 border">${order.total}</td>
                 <td className="p-2 border">
                   <span
-                    className={`px-2 py-1 rounded text-sm ${
-                      order.status === "Delivered"
-                        ? "bg-green-100 text-green-700"
-                        : order.status === "Processing"
+                    className={`px-2 py-1 rounded text-sm ${order.status === "Delivered"
+                      ? "bg-green-100 text-green-700"
+                      : order.status === "Processing"
                         ? "bg-yellow-100 text-yellow-700"
                         : "bg-red-100 text-red-700"
-                    }`}
+                      }`}
                   >
                     {order.status}
                   </span>

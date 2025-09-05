@@ -8,10 +8,9 @@ function NavBar() {
     const navigate = useNavigate();
     const { user, token, logoutUser } = useContext(AuthContext);
 
-    // Logout + redirect function
     const handleLogout = () => {
-        logoutUser(); // context এর logout function
-        navigate("/login"); // login page এ redirect
+        logoutUser();
+        navigate("/login");
     };
 
     const links = (
@@ -43,9 +42,8 @@ function NavBar() {
     return (
         <div className="navbar fixed z-10 bg-[#15151580] text-white shadow-sm">
             <div className="w-7xl mx-auto items-center">
-                {/* Left Section */}
+
                 <div className="navbar-start items-center">
-                    {/* Mobile Dropdown */}
                     <div className="dropdown">
                         <button tabIndex={0} className="btn btn-ghost lg:hidden">
                             <GiHamburgerMenu className="w-7 h-7" />
@@ -57,13 +55,11 @@ function NavBar() {
                             {links}
                         </ul>
                     </div>
-                    {/* Logo */}
                     <Link to="/" className="text-[16px] md:text-xl font-black uppercase">
                         Zoomit Shop
                     </Link>
                 </div>
 
-                {/* Right Section */}
                 <div className="navbar-end gap-3 items-center">
                     <div className="navbar-center hidden lg:flex">
                         <ul className="menu menu-horizontal px-1 text-lg font-medium">
@@ -77,30 +73,31 @@ function NavBar() {
                             <CartButton />
                         )
                     }
-                    {/* Buttons */}
-                    {!user ? (
-                        <>
-                            <Link
-                                to="/login"
-                                className="btn btn-sm rounded-full bg-yellow-500 hover:bg-yellow-600 text-white shadow-md transition"
+                    {
+                        !user ? (
+                            <>
+                                <Link
+                                    to="/login"
+                                    className="btn btn-sm rounded-full bg-yellow-500 hover:bg-yellow-600 text-white shadow-md transition"
+                                >
+                                    Login
+                                </Link>
+                                <Link
+                                    to="/signUp"
+                                    className="btn btn-sm rounded-full bg-white text-black hover:bg-gray-200 shadow-md transition"
+                                >
+                                    Sign Up
+                                </Link>
+                            </>
+                        ) : (
+                            <button
+                                onClick={handleLogout}
+                                className="bg-red-600 px-3 py-1 rounded hover:bg-red-700"
                             >
-                                Login
-                            </Link>
-                            <Link
-                                to="/signUp"
-                                className="btn btn-sm rounded-full bg-white text-black hover:bg-gray-200 shadow-md transition"
-                            >
-                                Sign Up
-                            </Link>
-                        </>
-                    ) : (
-                        <button
-                            onClick={handleLogout}
-                            className="bg-red-600 px-3 py-1 rounded hover:bg-red-700"
-                        >
-                            Logout
-                        </button>
-                    )}
+                                Logout
+                            </button>
+                        )
+                    }
                 </div>
             </div>
         </div>
