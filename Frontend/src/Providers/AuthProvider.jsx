@@ -1,104 +1,100 @@
-// src/context/AuthContext.jsx
-import { createContext, useState, useEffect } from "react";
-import { loginAPI, logoutAPI, signUpAPI } from "../api/auth";
+import  { createContext, useState, useEffect } from "react";
+import axios from "axios";
 
 export const AuthContext = createContext();
 
-function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+export default function AuthProvider({ children }) {
+    const [user, setUser] = useState(null); // { name, role, profileImage }
+    const [token, setToken] = useState(null);
+    const [loading, setLoading] = useState(false);
 
-  // ======================
-  // Register user
-  // ======================
-  const createUser = async (data) => {
+    // ======================
+    // Login
+    // ======================
+   const loginUser = async ({ email, password }) => {
     setLoading(true);
     try {
-      const formData = new FormData();
-      formData.append("name", data.name);
-      formData.append("email", data.email);
-      formData.append("password", data.password);
+        const res = await axios.post("http://localhost:5000/login", { email, password });
+        const { token, role, name, email: userEmail, profileImage } = res.data;
 
-      if (data.photo instanceof FileList && data.photo.length > 0) {
-        formData.append("photo", data.photo[0]);
-      }
+        // email include করা হলো
+        const userData = { name, role, email: userEmail, profileImage };
 
-      const res = await signUpAPI(formData);
-      return res;
-    } catch (err) {
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
+        setUser(userData);
+        setToken(token);
 
-  // ======================
-  // Login user
-  // ======================
-  const userSignIn = async (data) => {
-    setLoading(true);
-    try {
-      const res = await loginAPI(data);
-      const { user: loggedInUser, token } = res.data;
-
-      // Save user
-      setUser(loggedInUser);
-      localStorage.setItem("user", JSON.stringify(loggedInUser));
-
-      // Save token if available
-      if (token) {
+        localStorage.setItem("user", JSON.stringify(userData));
         localStorage.setItem("token", token);
-      }
 
-      return res;
+        window.dispatchEvent(new Event("localStorageUpdated"));
+
+        return res.data;
     } catch (err) {
-      throw err;
+        throw err;
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
 
-  // ======================
-  // Logout user
-  // ======================
-  const userLogOut = async () => {
-    setLoading(true);
-    try {
-      await logoutAPI();
-      setUser(null);
-      localStorage.removeItem("user");
-      localStorage.removeItem("token");
-    } catch (err) {
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
+    // ======================
+    // Register
+    // ======================
+    const registerUser = async ({ name, email, password, photo }) => {
+        setLoading(true);
+        try {
+            const formData = new FormData();
+            formData.append("name", name);
+            formData.append("email", email);
+            formData.append("password", password);
+            if (photo && photo[0]) formData.append("profileImage", photo[0]);
 
-  // ======================
-  // Load user from localStorage
-  // ======================
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    setLoading(false);
-  }, []);
+            const res = await axios.post("http://localhost:5000/register", formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+            });
 
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        loading,
-        createUser,
-        userSignIn,
-        userLogOut,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
+            return res.data;
+        } catch (err) {
+            throw err;
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // ======================
+    // Logout
+    // ======================
+    const logoutUser = () => {
+        setUser(null);
+        setToken(null);
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
+        window.dispatchEvent(new Event("localStorageUpdated"));
+    };
+
+    // ======================
+    // Load user from localStorage
+    // ======================
+    useEffect(() => {
+        const storedUser = localStorage.getItem("user");
+        const storedToken = localStorage.getItem("token");
+        if (storedUser && storedToken) {
+            setUser(JSON.parse(storedUser));
+            setToken(storedToken);
+        }
+    }, []);
+
+    return (
+        <AuthContext.Provider
+            value={{
+                user,
+                token,
+                loading,
+                loginUser,
+                registerUser,
+                logoutUser,
+            }}
+        >
+            {children}
+        </AuthContext.Provider>
+    );
 }
-
-export default AuthProvider;

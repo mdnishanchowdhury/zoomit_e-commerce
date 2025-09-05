@@ -41,22 +41,22 @@ function DashboardUI() {
 
                 <ul className="menu min-h-full w-[233px] p-4 gap-4 text-white">
                     <li className="uppercase">
-                        <NavLink to="/dashboard" className={({ isActive }) => isActive ? "text-yellow-300" : ""}>
+                        <NavLink to="/auth" className={({ isActive }) => isActive ? "text-yellow-300" : ""}>
                             <FaHome className="w-8 h-8" /> Overview
                         </NavLink>
                     </li>
                     <li className="uppercase">
-                        <NavLink to="/dashboard/usersList">
+                        <NavLink to="/auth/usersList">
                             <FaCalendar className="w-8 h-8" /> Users
                         </NavLink>
                     </li>
                     <li className="uppercase">
-                        <NavLink to="/dashboard/addproduct">
+                        <NavLink to="/auth/addproduct">
                             <MdOutlinePayment className="w-8 h-8" /> Products
                         </NavLink>
                     </li>
                     <li className="uppercase">
-                        <NavLink to="/dashboard/orderslist">
+                        <NavLink to="/auth/orderslist">
                             <IoCartOutline className="w-8 h-8" /> Orders
                         </NavLink>
                     </li>
