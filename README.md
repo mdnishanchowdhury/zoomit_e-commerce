@@ -34,32 +34,6 @@ SweetAlert2 → Alert & notifications
 
 Axios → API requests
 
-📂 Project Structure
-zoomit_e-commerce/
-│
-├── Backend/         # Node.js + Express backend
-│   ├── index.js     # Entry point
-│   ├── routes/      # API routes
-│   ├── models/      # Mongoose models
-│   ├── controllers/ # Logic for APIs
-│   └── .env         # Environment variables
-│
-├── Frontend/        # React + Vite frontend
-│   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── redux/
-│   │   ├── hooks/
-│   │   └── App.jsx
-│   └── vite.config.js
-│
-└── README.md
-
-⚙️ Installation & Setup
-1️⃣ Clone the repository
-git clone https://github.com/your-username/zoomit_e-commerce.git
-cd zoomit_e-commerce
-
 2️⃣ Backend Setup
 cd Backend
 npm install
